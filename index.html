@@ -3,37 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earnings Website</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Login System</title>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
 </head>
 <body>
-    <!-- 🔵 LOGIN SECTION -->
+
+    <!-- 🚀 Login Section -->
     <div id="loginSection">
-        <h2>Login with Mobile Number hello</h2>
-        <input type="text" id="phoneNumber" placeholder="Enter Mobile Number">
-        <div id="recaptcha-container"></div>
-        <button onclick="sendOTP()">Send OTP</button>
-
-        <h2>Enter OTP</h2>
-        <input type="text" id="otpCode" placeholder="Enter OTP">
-        <button onclick="verifyOTP()">Verify OTP</button>
+        <h2>Login / Register</h2>
+        <input type="email" id="email" placeholder="Enter Email"><br>
+        <input type="password" id="password" placeholder="Enter Password"><br>
+        <button onclick="register()">Register</button>
+        <button onclick="login()">Login</button>
     </div>
 
-    <!-- 🟢 DASHBOARD SECTION (Hidden Initially) -->
+    <!-- 🎉 Dashboard (Visible After Login) -->
     <div id="dashboardSection" style="display: none;">
-        <h2>Welcome to Your Dashboard</h2>
-        <h3>Wallet Balance: ₹<span id="wallet">0</span></h3>
-
-        <button id="watchAd">Watch Ad & Earn ₹10</button>
-
-        <h2>Withdraw Money</h2>
-        <button id="withdraw">Withdraw ₹50</button>
+        <h2>Welcome to Your Dashboard!</h2>
+        <button onclick="logout()">Logout</button>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
     <script src="script.js"></script>
+
 </body>
 </html>
-
