@@ -19,10 +19,25 @@
     </div>
 
     <!-- 🎉 Dashboard (Visible After Login) -->
-    <div id="dashboardSection" style="display: none;">
-        <h2>Welcome to Your Dashboard!</h2>
-        <button onclick="logout()">Logout</button>
-    </div>
+<div id="dashboardSection" style="display: none;">
+    <h2>Welcome to Your Earnings Dashboard!</h2>
+
+    <!-- 📌 Wallet Balance -->
+    <h3>Wallet Balance: <span id="wallet">₹0</span></h3>
+
+    <!-- 🎥 Watch Ads Button -->
+    <button onclick="watchAd()">🎥 Watch Ad & Earn</button>
+
+    <!-- 💳 Withdraw Money Button -->
+    <button onclick="withdraw()">💳 Withdraw Money</button>
+
+    <!-- 🔥 Premium Subscription -->
+    <button onclick="subscribePremium()">🌟 Go Premium (₹10/month)</button>
+
+    <!-- 🚪 Logout Button -->
+    <button onclick="logout()">🚪 Logout</button>
+</div>
+
 
     <script src="script.js"></script>
 
