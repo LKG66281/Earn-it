@@ -1,52 +1,78 @@
-// 🔥 Firebase Configuration (Required)
-const firebaseConfig = {
-  apiKey: "AIzaSyBGFz3y6JOVcd8a6aU6siWrk0oVywmbarQ",
-  authDomain: "earning-4462f.firebaseapp.com",
-  projectId: "earning-4462f",
-  storageBucket: "earning-4462f.firebaseapp.com", // Fixed incorrect storageBucket
-  messagingSenderId: "727491133656",
-  appId: "1:727491133656:web:74cf4022deaa29418797ad",
-  measurementId: "G-5101E1DZ43"
-};
-// 🔥 Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
+// 🔥 Firebase Database Reference
+const db = firebase.firestore();
+let userEarnings = 0; // Wallet balance
 
-// 📌 Register New User
-function register() {
-    let email = document.getElementById("email").value;
-    let password = document.getElementById("password").value;
-
-    auth.createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
-            alert("Registration Successful! Now Login.");
-        })
-        .catch(error => {
-            alert("Error: " + error.message);
+// 📌 Update Wallet Balance from Firebase
+function updateWallet() {
+    let user = auth.currentUser;
+    if (user) {
+        db.collection("users").doc(user.uid).get().then(doc => {
+            if (doc.exists) {
+                userEarnings = doc.data().balance || 0;
+                document.getElementById("wallet").innerText = "₹" + userEarnings;
+            } else {
+                db.collection("users").doc(user.uid).set({ balance: 0 });
+            }
         });
+    }
 }
 
-// 🔑 Login Existing User
-function login() {
-    let email = document.getElementById("email").value;
-    let password = document.getElementById("password").value;
+// 🎥 Watch Ads & Earn Money
+function watchAd() {
+    let earnings = Math.floor(Math.random() * 5) + 1; // Earn ₹1-₹5 per ad
+    userEarnings += earnings;
+    document.getElementById("wallet").innerText = "₹" + userEarnings;
 
-    auth.signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-            alert("Login Successful!");
-            document.getElementById("loginSection").style.display = "none";
-            document.getElementById("dashboardSection").style.display = "block";
-        })
-        .catch(error => {
-            alert("Login Failed: " + error.message);
-        });
+    let user = auth.currentUser;
+    if (user) {
+        db.collection("users").doc(user.uid).update({ balance: userEarnings });
+    }
+
+    alert("Ad Watched! You earned ₹" + earnings);
 }
 
-// 🚀 Logout Function
-function logout() {
-    auth.signOut().then(() => {
-        alert("Logged Out Successfully!");
-        document.getElementById("loginSection").style.display = "block";
+// 💳 Withdraw Money
+function withdraw() {
+    if (userEarnings < 10) {
+        alert("Minimum ₹10 required for withdrawal!");
+        return;
+    }
+
+    let upi = prompt("Enter UPI ID / Paytm / PayPal:");
+    if (upi) {
+        alert("₹" + userEarnings + " withdrawn to " + upi);
+        userEarnings = 0; // Reset balance
+
+        let user = auth.currentUser;
+        if (user) {
+            db.collection("users").doc(user.uid).update({ balance: 0 });
+        }
+
+        document.getElementById("wallet").innerText = "₹0";
+    }
+}
+
+// 🌟 Premium Subscription (Auto-earn ₹10/month)
+function subscribePremium() {
+    let user = auth.currentUser;
+    if (user) {
+        let confirmSub = confirm("Pay ₹10/month to auto-earn money?");
+        if (confirmSub) {
+            userEarnings += 10; // Add ₹10 instantly
+            db.collection("users").doc(user.uid).update({ balance: userEarnings });
+            document.getElementById("wallet").innerText = "₹" + userEarnings;
+            alert("Premium Activated! You got ₹10.");
+        }
+    }
+}
+
+// 🚀 Run on Login
+auth.onAuthStateChanged(user => {
+    if (user) {
+        updateWallet();
+        document.getElementById("dashboardSection").style.display = "block";
+    } else {
         document.getElementById("dashboardSection").style.display = "none";
-    });
-}
+    }
+});
+
