@@ -1,77 +1,52 @@
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// 🔥 Firebase Configuration (Required)
 const firebaseConfig = {
   apiKey: "AIzaSyBGFz3y6JOVcd8a6aU6siWrk0oVywmbarQ",
   authDomain: "earning-4462f.firebaseapp.com",
   projectId: "earning-4462f",
-  storageBucket: "earning-4462f.firebasestorage.app",
+  storageBucket: "earning-4462f.firebaseapp.com", // Fixed incorrect storageBucket
   messagingSenderId: "727491133656",
   appId: "1:727491133656:web:74cf4022deaa29418797ad",
   measurementId: "G-5101E1DZ43"
 };
-
 // 🔥 Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-// 🛡️ Setup reCAPTCHA
-window.onload = function() {
-    renderCaptcha();
-};
+// 📌 Register New User
+function register() {
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
 
-function renderCaptcha() {
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-        size: "normal",
-        callback: function(response) {
-            console.log("reCAPTCHA solved!");
-        }
-    });
-}
-
-// 📲 Send OTP
-function sendOTP() {
-    let phoneNumber = document.getElementById("phoneNumber").value;
-    let appVerifier = window.recaptchaVerifier;
-
-    auth.signInWithPhoneNumber(phoneNumber, appVerifier)
-        .then(confirmationResult => {
-            window.confirmationResult = confirmationResult;
-            alert("OTP sent!");
+    auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+            alert("Registration Successful! Now Login.");
         })
         .catch(error => {
-            alert("Error sending OTP: " + error.message);
+            alert("Error: " + error.message);
         });
 }
 
-// 🔑 Verify OTP
-function verifyOTP() {
-    let otpCode = document.getElementById("otpCode").value;
+// 🔑 Login Existing User
+function login() {
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
 
-    confirmationResult.confirm(otpCode)
-        .then(result => {
+    auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
             alert("Login Successful!");
             document.getElementById("loginSection").style.display = "none";
             document.getElementById("dashboardSection").style.display = "block";
         })
         .catch(error => {
-            alert("Incorrect OTP!");
+            alert("Login Failed: " + error.message);
         });
 }
 
-// 💰 Wallet System
-let walletBalance = 0;
-
-document.getElementById("watchAd").addEventListener("click", function() {
-    walletBalance += 10;
-    document.getElementById("wallet").innerText = walletBalance;
-    alert("Ad watched! ₹10 added to wallet.");
-});
-
-document.getElementById("withdraw").addEventListener("click", function() {
-    if (walletBalance >= 50) {
-        alert("Withdrawal request sent!");
-        walletBalance -= 50;
-        document.getElementById("wallet").innerText = walletBalance;
-    } else {
-        alert("You need at least ₹50 to withdraw.");
-    }
-});
+// 🚀 Logout Function
+function logout() {
+    auth.signOut().then(() => {
+        alert("Logged Out Successfully!");
+        document.getElementById("loginSection").style.display = "block";
+        document.getElementById("dashboardSection").style.display = "none";
+    });
+}
