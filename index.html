@@ -3,43 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login System</title>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <title>Earning App</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 </head>
 <body>
+    <h2>Login / Register</h2>
 
-    <!-- 🚀 Login Section -->
-    <div id="loginSection">
-        <h2>Login / Register</h2>
-        <input type="email" id="email" placeholder="Enter Email"><br>
-        <input type="password" id="password" placeholder="Enter Password"><br>
-        <button onclick="register()">Register</button>
-        <button onclick="login()">Login</button>
+    <!-- 🔥 Mobile Number Input -->
+    <input type="text" id="phone" placeholder="Enter Mobile Number">
+    <div id="recaptcha-container"></div>
+    
+    <!-- 🚀 Login & Register Buttons -->
+    <button onclick="register()">Register</button>
+    <button onclick="login()">Login</button>
+
+    <!-- 🚀 User Dashboard (Only visible after login) -->
+    <div id="dashboard" style="display:none;">
+        <h2>Welcome to Your Wallet</h2>
+        <p>Your Balance: ₹<span id="balance">0</span></p>
+        <button onclick="logout()">Logout</button>
+
+        <!-- 🔥 AdCash Ads -->
+        <script type="text/javascript">
+            aclib.runAutoTag({
+                zoneId: 'bwlkocoxc5',
+            });
+        </script>
     </div>
 
-    <!-- 🎉 Dashboard (Visible After Login) -->
-<div id="dashboardSection" style="display: none;">
-    <h2>Welcome to Your Earnings Dashboard!</h2>
+    <!-- 🔥 Firebase Configuration -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_ID",
+            appId: "YOUR_APP_ID",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-    <!-- 📌 Wallet Balance -->
-    <h3>Wallet Balance: <span id="wallet">₹0</span></h3>
+        // 🚀 Register Function
+        function register() {
+            let phoneNumber = document.getElementById("phone").value;
+            let appVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
 
-    <!-- 🎥 Watch Ads Button -->
-    <button onclick="watchAd()">🎥 Watch Ad & Earn</button>
+            firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+                .then((confirmationResult) => {
+                    window.confirmationResult = confirmationResult;
+                    let code = prompt("Enter OTP:");
+                    return confirmationResult.confirm(code);
+                })
+                .then((result) => {
+                    alert("Registration Successful!");
+                    saveUserData(result.user);
+                })
+                .catch((error) => {
+                    alert("Error: " + error.message);
+                });
+        }
 
-    <!-- 💳 Withdraw Money Button -->
-    <button onclick="withdraw()">💳 Withdraw Money</button>
+        // 🚀 Save User Data to Firestore
+        function saveUserData(user) {
+            let userRef = db.collection("users").doc(user.uid);
+            userRef.set({
+                phone: user.phoneNumber,
+                balance: 0
+            }).then(() => {
+                alert("User data saved!");
+                showDashboard();
+            });
+        }
 
-    <!-- 🔥 Premium Subscription -->
-    <button onclick="subscribePremium()">🌟 Go Premium (₹10/month)</button>
+        // 🔑 Login Function
+        function login() {
+            let phoneNumber = document.getElementById("phone").value;
+            let appVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
 
-    <!-- 🚪 Logout Button -->
-    <button onclick="logout()">🚪 Logout</button>
-</div>
+            firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+                .then((confirmationResult) => {
+                    window.confirmationResult = confirmationResult;
+                    let code = prompt("Enter OTP:");
+                    return confirmationResult.confirm(code);
+                })
+                .then((result) => {
+                    alert("Login Successful!");
+                    showDashboard();
+                })
+                .catch((error) => {
+                    alert("Error: " + error.message);
+                });
+        }
 
+        // 🚀 Show Dashboard on Login
+        function showDashboard() {
+            document.getElementById("dashboard").style.display = "block";
+        }
 
-    <script src="script.js"></script>
+        // 🚪 Logout Function
+        function logout() {
+            auth.signOut().then(() => {
+                alert("Logged out!");
+                document.getElementById("dashboard").style.display = "none";
+            });
+        }
 
+        // 🚀 Display User Balance
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                let userRef = db.collection("users").doc(user.uid);
+                userRef.get().then((doc) => {
+                    if (doc.exists) {
+                        document.getElementById("balance").innerText = doc.data().balance;
+                        showDashboard();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
