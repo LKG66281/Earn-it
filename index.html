@@ -3,20 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earn Money by Watching Ads</title>
+    <meta name="description" content="A simple blog with integrated ads">
+    <title>My Blog</title>
+    <style>
+        /* Basic Styling for the Blog */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        article {
+            margin-bottom: 20px;
+        }
+        .ads {
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
 </head>
 <body>
+    <header>
+        <h1>Welcome to My Blog</h1>
+    </header>
+    
+    <div class="content">
+        <article>
+            <h2>My First Blog Post</h2>
+            <p>
+                This is my first blog post! I'm excited to share my thoughts, experiences, and ideas with you. In this post, I'm going to talk about how to set up a simple blog with embedded ads.
+            </p>
+            <p>
+                Blogging is a great way to share your ideas, and monetizing your blog can help you earn money. Below, I've integrated a popup ad from Adcash to show you how it can be done!
+            </p>
 
-    <h1>Welcome to Earn & Watch Ads</h1>
-    <p>Click anywhere to view ads and earn rewards!</p>
+            <!-- Inserted Ad Code Here -->
+            <div class="ads">
+                <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
+                <script type="text/javascript">
+                    aclib.runPop({
+                        zoneId: '9763002',  // Replace with your actual zone ID
+                    });
+                </script>
+            </div>
+        </article>
 
-    <!-- Adcash Pop-up Ads Script -->
-    <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
-    <script type="text/javascript">
-        aclib.runPop({
-            zoneId: '9763002', // Replace with your Adcash Zone ID
-        });
-    </script>
-
+        <article>
+            <h2>Why I Started Blogging</h2>
+            <p>
+                Blogging has been a way for me to express myself and connect with others. Whether you're passionate about a hobby or want to share your knowledge, starting a blog can be a great way to get started online.
+            </p>
+        </article>
+    </div>
+    
+    <footer>
+        <p style="text-align:center; background-color: #333; color: white; padding: 10px;">
+            © 2025 My Blog. All rights reserved.
+        </p>
+    </footer>
 </body>
 </html>
