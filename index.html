@@ -3,153 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earnings App</title>
-
-    <style>
-        /* 🔥 Global Styles */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-            padding: 20px;
-        }
-
-        /* 🚀 Buttons */
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            margin: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        /* 🔥 Wallet Box */
-        #walletBalance {
-            font-size: 24px;
-            font-weight: bold;
-            color: #ff9800;
-        }
-
-        /* 🎯 Dashboard */
-        #dashboard {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-            margin-top: 20px;
-        }
-
-        /* 🟢 Login Button */
-        #loginSection button {
-            background-color: #4285F4;
-        }
-    </style>
-
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-        // 🔥 Supabase Credentials (Replace with Your Own)
-        const SUPABASE_URL = "https://psygfedpsrswpyteeblq.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzeWdmZWRwc3Jzd3B5dGVlYmxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0MTc2MTIsImV4cCI6MjA1ODk5MzYxMn0.8_I6Tv2DVMrPq2YDoxibvyAYyaLpyBFdHp5dLmgh0sc";
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        let user = null;
-
-        // 🚀 Google Login
-        async function googleLogin() {
-            let { user, error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
-            if (error) alert("Login Failed!");
-        }
-
-        // 🚀 Check Login Status
-        async function checkLogin() {
-            let { data: userData } = await supabase.auth.getUser();
-            if (userData) {
-                user = userData;
-                document.getElementById("loginSection").style.display = "none";
-                document.getElementById("dashboard").style.display = "block";
-                loadWallet();
-            }
-        }
-
-        // 🚀 Load Wallet Balance
-        async function loadWallet() {
-            if (!user) return;
-            let { data, error } = await supabase.from('users').select('wallet_balance').eq('id', user.id).single();
-            if (!error) {
-                document.getElementById("walletBalance").innerText = data.wallet_balance || 0;
-            } else {
-                await supabase.from('users').insert([{ id: user.id, email: user.email, wallet_balance: 0 }]);
-                document.getElementById("walletBalance").innerText = "0";
-            }
-        }
-
-        // 🚀 Earn Money from Ads
-        function earnMoney() {
-            if (!user) return;
-            let currentBalance = parseInt(document.getElementById("walletBalance").innerText);
-            let newBalance = currentBalance + 5; // Earn ₹5 per ad
-            document.getElementById("walletBalance").innerText = newBalance;
-            supabase.from('users').update({ wallet_balance: newBalance }).eq('id', user.id);
-        }
-
-        // 🚀 Withdraw Money
-        function withdrawMoney() {
-            let balance = parseInt(document.getElementById("walletBalance").innerText);
-            if (balance >= 100) {
-                alert("Withdrawal Request Sent!");
-                supabase.from('users').update({ wallet_balance: 0 }).eq('id', user.id);
-                document.getElementById("walletBalance").innerText = "0";
-            } else {
-                alert("You need at least ₹100 to withdraw.");
-            }
-        }
-
-        // 🚀 Logout
-        async function logout() {
-            await supabase.auth.signOut();
-            location.reload();
-        }
-
-        checkLogin();
-    </script>
+    <title>Earn Money by Watching Ads</title>
 </head>
 <body>
 
-    <!-- 🚀 Google Login Section -->
-    <div id="loginSection">
-        <button onclick="googleLogin()">Login with Google</button>
-    </div>
+    <h1>Welcome to Earn & Watch Ads</h1>
+    <p>Click anywhere to view ads and earn rewards!</p>
 
-    <!-- 🚀 User Dashboard -->
-    <div id="dashboard" style="display:none;">
-        <h1>Welcome to Earnings App</h1>
-        <p>Your Wallet Balance: ₹<span id="walletBalance">0</span></p>
-
-        <!-- 💰 Earn Money from Ads -->
-        <button onclick="earnMoney()">Watch Ad & Earn ₹5</button>
-
-        <!-- 💸 Withdraw Money -->
-        <button onclick="withdrawMoney()">Withdraw Money</button>
-
-        <!-- 🔄 Logout -->
-        <button onclick="logout()">Logout</button>
-
-        <!-- 📌 Adcash Integration -->
-        <script type="text/javascript">
-            aclib.runAutoTag({
-                zoneId: 'bwlkocoxc5',
-            });
-        </script>
-    </div>
+    <!-- Adcash Pop-up Ads Script -->
+    <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
+    <script type="text/javascript">
+        aclib.runPop({
+            zoneId: '9763002', // Replace with your Adcash Zone ID
+        });
+    </script>
 
 </body>
 </html>
