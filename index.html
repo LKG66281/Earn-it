@@ -3,133 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login & Signup</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f4;
+    <title>Firebase Login System</title>
+    <script type="module">
+        // Import Firebase SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDptrY_22JlFegSAzXU52Wg8Wu6TUXqqjI",
+            authDomain: "earn-it-7d72d.firebaseapp.com",
+            projectId: "earn-it-7d72d",
+            storageBucket: "earn-it-7d72d.firebasestorage.app",
+            messagingSenderId: "1756161084",
+            appId: "1:1756161084:web:3db1e0d934ac844ed28f39",
+            measurementId: "G-J98NDHW03J"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        const db = getFirestore();
+
+        // Signup Function
+        async function signup() {
+            let email = document.getElementById("email").value;
+            let password = document.getElementById("password").value;
+
+            if (!email || !password) {
+                alert("Please fill all fields!");
+                return;
+            }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Save user data in Firestore
+                await setDoc(doc(db, "users", user.uid), {
+                    email: email,
+                    username: email.split("@")[0] // Default username
+                });
+
+                alert("Signup successful! Now you can login.");
+                location.reload();
+            } catch (error) {
+                alert(error.message);
+            }
         }
-        .container {
-            width: 300px;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+
+        // Login Function
+        async function login() {
+            let email = document.getElementById("loginEmail").value;
+            let password = document.getElementById("loginPassword").value;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                loadDashboard(user.uid);
+            } catch (error) {
+                alert("Invalid credentials!");
+            }
         }
-        input, button {
-            width: 100%;
-            margin: 10px 0;
-            padding: 10px;
+
+        // Load Dashboard Data
+        async function loadDashboard(userId) {
+            const userDoc = await getDoc(doc(db, "users", userId));
+
+            if (userDoc.exists()) {
+                document.getElementById("authForm").style.display = "none";
+                document.getElementById("dashboard").style.display = "block";
+                document.getElementById("username").innerText = userDoc.data().username;
+            }
         }
-    </style>
+
+        // Change Username
+        async function changeUsername() {
+            let newUsername = document.getElementById("newUsername").value;
+            let user = auth.currentUser;
+
+            if (user) {
+                await updateDoc(doc(db, "users", user.uid), {
+                    username: newUsername
+                });
+                alert("Username updated!");
+                loadDashboard(user.uid);
+            }
+        }
+
+        // Delete Account
+        async function deleteAccount() {
+            let user = auth.currentUser;
+
+            if (user) {
+                await deleteDoc(doc(db, "users", user.uid));
+                await deleteUser(user);
+                alert("Account deleted!");
+                location.reload();
+            }
+        }
+
+        // Logout Function
+        function logout() {
+            signOut(auth).then(() => {
+                alert("Logged out!");
+                location.reload();
+            });
+        }
+
+        // Check Auth State
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadDashboard(user.uid);
+            }
+        });
+
+        // Show Login Form
+        function showLogin() {
+            document.getElementById("pageTitle").innerText = "Login";
+            document.getElementById("authForm").innerHTML = `
+                <input type="email" id="loginEmail" placeholder="Enter Email"><br>
+                <input type="password" id="loginPassword" placeholder="Enter Password"><br>
+                <button onclick="login()">Login</button>
+                <p>Don't have an account? <a href="#" onclick="location.reload()">Signup</a></p>
+            `;
+        }
+    </script>
 </head>
 <body>
-    <div class="container" id="signup-container">
-        <h2>Sign Up</h2>
-        <input type="email" id="signup-email" placeholder="Enter email">
-        <button onclick="sendOTP()">Send OTP</button>
-        <input type="text" id="otp" placeholder="Enter OTP">
-        <input type="password" id="password" placeholder="Set Password">
-        <button onclick="register()">Register</button>
-        <button onclick="showLogin()">Go to Login</button>
+    <h2 id="pageTitle">Signup</h2>
+
+    <div id="authForm">
+        <input type="email" id="email" placeholder="Enter Email"><br>
+        <input type="password" id="password" placeholder="Enter Password"><br>
+        <button onclick="signup()">Signup</button>
+        <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
     </div>
 
-    <div class="container" id="login-container" style="display:none;">
-        <h2>Login</h2>
-        <input type="email" id="login-email" placeholder="Enter email">
-        <input type="password" id="login-password" placeholder="Enter password">
-        <button onclick="login()">Login</button>
-        <button onclick="showSignup()">Go to Signup</button>
-    </div>
-
-    <div class="container" id="dashboard" style="display:none;">
-        <h2>Dashboard</h2>
-        <input type="text" id="username" placeholder="Enter username">
-        <button onclick="updateUsername()">Update Username</button>
+    <div id="dashboard" style="display: none;">
+        <h2>Welcome, <span id="username"></span>!</h2>
+        <input type="text" id="newUsername" placeholder="Enter New Username">
+        <button onclick="changeUsername()">Change Username</button>
         <button onclick="deleteAccount()">Delete Account</button>
         <button onclick="logout()">Logout</button>
     </div>
-
-    <script>
-        function showLogin() {
-            document.getElementById('signup-container').style.display = 'none';
-            document.getElementById('login-container').style.display = 'block';
-        }
-
-        function showSignup() {
-            document.getElementById('signup-container').style.display = 'block';
-            document.getElementById('login-container').style.display = 'none';
-        }
-
-        function sendOTP() {
-            const email = document.getElementById('signup-email').value;
-            fetch('http://localhost:5000/send-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            }).then(res => res.json()).then(data => alert(data.message));
-        }
-
-        function register() {
-            const email = document.getElementById('signup-email').value;
-            const otp = document.getElementById('otp').value;
-            const password = document.getElementById('password').value;
-            fetch('http://localhost:5000/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, otp, password })
-            }).then(res => res.json()).then(data => {
-                alert(data.message);
-                if (data.success) showLogin();
-            });
-        }
-
-        function login() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            fetch('http://localhost:5000/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            }).then(res => res.json()).then(data => {
-                if (data.success) {
-                    document.getElementById('login-container').style.display = 'none';
-                    document.getElementById('dashboard').style.display = 'block';
-                } else {
-                    alert(data.message);
-                }
-            });
-        }
-
-        function updateUsername() {
-            const email = document.getElementById('login-email').value;
-            const username = document.getElementById('username').value;
-            fetch('http://localhost:5000/update-username', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, username })
-            }).then(res => res.json()).then(data => alert(data.message));
-        }
-
-        function deleteAccount() {
-            const email = document.getElementById('login-email').value;
-            fetch('http://localhost:5000/delete-account', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            }).then(res => res.json()).then(data => {
-                alert(data.message);
-                if (data.success) location.reload();
-            });
-        }
-
-        function logout() {
-            location.reload();
-        }
-    </script>
 </body>
 </html>
