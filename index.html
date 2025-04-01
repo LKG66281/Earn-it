@@ -3,80 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A simple blog with integrated ads">
-    <title>My Blog</title>
+    <title>Login & Signup</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
-        /* Basic Styling for the Blog */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        .content {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: white;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        article {
-            margin-bottom: 20px;
-        }
-        .ads {
-            text-align: center;
-            margin: 20px 0;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; }
+        input, button { margin: 5px; padding: 10px; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Welcome to My Blog</h1>
-    </header>
+    <h2>Sign Up</h2>
+    <input type="email" id="signup-email" placeholder="Email">
+    <input type="password" id="signup-password" placeholder="Password">
+    <button onclick="signUp()">Sign Up</button>
     
-    <div class="content">
-        <article>
-            <h2>My First Blog Post</h2>
-            <p>
-                This is my first blog post! I'm excited to share my thoughts, experiences, and ideas with you. In this post, I'm going to talk about how to set up a simple blog with embedded ads.
-            </p>
-            <p>
-                Blogging is a great way to share your ideas, and monetizing your blog can help you earn money. Below, I've integrated a popup ad from Adcash to show you how it can be done!
-            </p>
-
-            <!-- Inserted Ad Code Here -->
-            <div class="ads">
-                <script id="aclib" type="text/javascript" src="//acscdn.com/script/aclib.js"></script>
-                <script type="text/javascript">
-                    aclib.runPop({
-                        zoneId: '9763002',  // Replace with your actual zone ID
-                    });
-                </script>
-            </div>
-        </article>
-
-        <article>
-            <h2>Why I Started Blogging</h2>
-            <p>
-                Blogging has been a way for me to express myself and connect with others. Whether you're passionate about a hobby or want to share your knowledge, starting a blog can be a great way to get started online.
-            </p>
-        </article>
-    </div>
+    <h2>Login</h2>
+    <input type="email" id="login-email" placeholder="Email">
+    <input type="password" id="login-password" placeholder="Password">
+    <button onclick="login()">Login</button>
     
-    <footer>
-        <p style="text-align:center; background-color: #333; color: white; padding: 10px;">
-            © 2025 My Blog. All rights reserved.
-        </p>
-    </footer>
+    <script>
+        const supabaseUrl = "YOUR_SUPABASE_URL";
+        const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        async function signUp() {
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const { user, error } = await supabase.auth.signUp({ email, password });
+            if (error) alert(error.message);
+            else alert("Signup successful! Check your email to verify your account.");
+        }
+
+        async function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const { user, error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) alert(error.message);
+            else alert("Login successful! Welcome " + user.email);
+        }
+    </script>
 </body>
 </html>
