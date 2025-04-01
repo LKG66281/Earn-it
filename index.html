@@ -4,42 +4,131 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login & Signup</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        input, button { margin: 5px; padding: 10px; }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 300px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        input, button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
-    <h2>Sign Up</h2>
-    <input type="email" id="signup-email" placeholder="Email">
-    <input type="password" id="signup-password" placeholder="Password">
-    <button onclick="signUp()">Sign Up</button>
-    
-    <h2>Login</h2>
-    <input type="email" id="login-email" placeholder="Email">
-    <input type="password" id="login-password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    
+    <div class="container" id="signup-container">
+        <h2>Sign Up</h2>
+        <input type="email" id="signup-email" placeholder="Enter email">
+        <button onclick="sendOTP()">Send OTP</button>
+        <input type="text" id="otp" placeholder="Enter OTP">
+        <input type="password" id="password" placeholder="Set Password">
+        <button onclick="register()">Register</button>
+        <button onclick="showLogin()">Go to Login</button>
+    </div>
+
+    <div class="container" id="login-container" style="display:none;">
+        <h2>Login</h2>
+        <input type="email" id="login-email" placeholder="Enter email">
+        <input type="password" id="login-password" placeholder="Enter password">
+        <button onclick="login()">Login</button>
+        <button onclick="showSignup()">Go to Signup</button>
+    </div>
+
+    <div class="container" id="dashboard" style="display:none;">
+        <h2>Dashboard</h2>
+        <input type="text" id="username" placeholder="Enter username">
+        <button onclick="updateUsername()">Update Username</button>
+        <button onclick="deleteAccount()">Delete Account</button>
+        <button onclick="logout()">Logout</button>
+    </div>
+
     <script>
-        const supabaseUrl = "https://ohkysrxrzzprdssbygec.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9oa3lzcnhyenpwcmRzc2J5Z2VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0MjE3NjEsImV4cCI6MjA1ODk5Nzc2MX0.O7ZyQY34pq5EK7vQ5f7xaKf-EAugC8zCIgjY-LQqGLc";
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-        
-        async function signUp() {
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const { user, error } = await supabase.auth.signUp({ email, password });
-            if (error) alert(error.message);
-            else alert("Signup successful! Check your email to verify your account.");
+        function showLogin() {
+            document.getElementById('signup-container').style.display = 'none';
+            document.getElementById('login-container').style.display = 'block';
         }
 
-        async function login() {
+        function showSignup() {
+            document.getElementById('signup-container').style.display = 'block';
+            document.getElementById('login-container').style.display = 'none';
+        }
+
+        function sendOTP() {
+            const email = document.getElementById('signup-email').value;
+            fetch('http://localhost:5000/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            }).then(res => res.json()).then(data => alert(data.message));
+        }
+
+        function register() {
+            const email = document.getElementById('signup-email').value;
+            const otp = document.getElementById('otp').value;
+            const password = document.getElementById('password').value;
+            fetch('http://localhost:5000/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp, password })
+            }).then(res => res.json()).then(data => {
+                alert(data.message);
+                if (data.success) showLogin();
+            });
+        }
+
+        function login() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-            const { user, error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) alert(error.message);
-            else alert("Login successful! Welcome " + user.email);
+            fetch('http://localhost:5000/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    document.getElementById('login-container').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'block';
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+
+        function updateUsername() {
+            const email = document.getElementById('login-email').value;
+            const username = document.getElementById('username').value;
+            fetch('http://localhost:5000/update-username', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, username })
+            }).then(res => res.json()).then(data => alert(data.message));
+        }
+
+        function deleteAccount() {
+            const email = document.getElementById('login-email').value;
+            fetch('http://localhost:5000/delete-account', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            }).then(res => res.json()).then(data => {
+                alert(data.message);
+                if (data.success) location.reload();
+            });
+        }
+
+        function logout() {
+            location.reload();
         }
     </script>
 </body>
