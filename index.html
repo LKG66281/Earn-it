@@ -4,6 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Firebase Login System</title>
+</head>
+<body>
+    <h2 id="pageTitle">Signup</h2>
+
+    <div id="authForm">
+        <input type="email" id="email" placeholder="Enter Email"><br>
+        <input type="password" id="password" placeholder="Enter Password"><br>
+        <button onclick="signup()">Signup</button>
+        <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+    </div>
+
+    <div id="dashboard" style="display: none;">
+        <h2>Welcome, <span id="username"></span>!</h2>
+        <input type="text" id="newUsername" placeholder="Enter New Username">
+        <button onclick="changeUsername()">Change Username</button>
+        <button onclick="deleteAccount()">Delete Account</button>
+        <button onclick="logout()">Logout</button>
+    </div>
+
     <script type="module">
         // Import Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
@@ -27,7 +46,7 @@
         const db = getFirestore();
 
         // Signup Function
-        async function signup() {
+        window.signup = async function() {
             let email = document.getElementById("email").value;
             let password = document.getElementById("password").value;
 
@@ -51,10 +70,10 @@
             } catch (error) {
                 alert(error.message);
             }
-        }
+        };
 
         // Login Function
-        async function login() {
+        window.login = async function() {
             let email = document.getElementById("loginEmail").value;
             let password = document.getElementById("loginPassword").value;
 
@@ -65,7 +84,7 @@
             } catch (error) {
                 alert("Invalid credentials!");
             }
-        }
+        };
 
         // Load Dashboard Data
         async function loadDashboard(userId) {
@@ -79,7 +98,7 @@
         }
 
         // Change Username
-        async function changeUsername() {
+        window.changeUsername = async function() {
             let newUsername = document.getElementById("newUsername").value;
             let user = auth.currentUser;
 
@@ -90,10 +109,10 @@
                 alert("Username updated!");
                 loadDashboard(user.uid);
             }
-        }
+        };
 
         // Delete Account
-        async function deleteAccount() {
+        window.deleteAccount = async function() {
             let user = auth.currentUser;
 
             if (user) {
@@ -102,15 +121,15 @@
                 alert("Account deleted!");
                 location.reload();
             }
-        }
+        };
 
         // Logout Function
-        function logout() {
+        window.logout = function() {
             signOut(auth).then(() => {
                 alert("Logged out!");
                 location.reload();
             });
-        }
+        };
 
         // Check Auth State
         onAuthStateChanged(auth, (user) => {
@@ -120,7 +139,7 @@
         });
 
         // Show Login Form
-        function showLogin() {
+        window.showLogin = function() {
             document.getElementById("pageTitle").innerText = "Login";
             document.getElementById("authForm").innerHTML = `
                 <input type="email" id="loginEmail" placeholder="Enter Email"><br>
@@ -128,25 +147,7 @@
                 <button onclick="login()">Login</button>
                 <p>Don't have an account? <a href="#" onclick="location.reload()">Signup</a></p>
             `;
-        }
+        };
     </script>
-</head>
-<body>
-    <h2 id="pageTitle">Signup</h2>
-
-    <div id="authForm">
-        <input type="email" id="email" placeholder="Enter Email"><br>
-        <input type="password" id="password" placeholder="Enter Password"><br>
-        <button onclick="signup()">Signup</button>
-        <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
-    </div>
-
-    <div id="dashboard" style="display: none;">
-        <h2>Welcome, <span id="username"></span>!</h2>
-        <input type="text" id="newUsername" placeholder="Enter New Username">
-        <button onclick="changeUsername()">Change Username</button>
-        <button onclick="deleteAccount()">Delete Account</button>
-        <button onclick="logout()">Logout</button>
-    </div>
 </body>
 </html>
