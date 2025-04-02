@@ -27,8 +27,8 @@
 <body>
     <h2>Real-Time Tic-Tac-Toe</h2>
     <input type="text" id="gameId" placeholder="Enter Game ID">
-    <button onclick="joinGame()">Join Game</button>
-    <div class="board" id="board"></div>
+    <button onclick="startGame()">Play</button>
+    <div class="board" id="board" style="display:none;"></div>
     <p id="status">Waiting for opponent...</p>
     <p id="stats">Games Played: 0 | Wins: 0 | Losses: 0</p>
     <button onclick="logout()">Logout</button>
@@ -59,12 +59,14 @@
         document.getElementById("board").innerHTML = Array(9).fill(0).map((_, i) => 
             `<div class='cell' id='cell${i}' onclick='makeMove(${i})'></div>`).join("");
 
-        window.joinGame = async function() {
+        window.startGame = async function() {
             gameId = document.getElementById("gameId").value;
             if (!gameId) {
                 alert("Enter a game ID!");
                 return;
             }
+
+            document.getElementById("board").style.display = "grid";
 
             const gameRef = doc(db, "games", gameId);
             const gameSnap = await getDoc(gameRef);
@@ -143,6 +145,7 @@
 
         window.logout = async function() {
             await signOut(auth);
+            window.location.href = "index.html";
         };
     </script>
 </body>
